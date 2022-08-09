@@ -18,3 +18,10 @@ CREATE TABLE users (
     first_name VARCHAR,
     last_name VARCHAR
 );
+
+INSERT INTO secrets(
+title,
+description
+)
+VALUES
+('Test Post', 'This is a test Post');
