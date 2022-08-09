@@ -2,7 +2,7 @@ const pool = require('../lib/utils/pool');
 const setup = require('../data/setup');
 const request = require('supertest');
 const app = require('../lib/app');
-// const UserService = require('../lib/middleware/UserService');
+const UserService = require('../lib/middleware/UserService');
 
 const userTest = {
   firstName: 'tester1',
@@ -11,15 +11,19 @@ const userTest = {
   password: '12345', 
 };
 
-// const registerAndLogin = async (userProps = {}) => {
-//   const password = userProps.password ?? userTest.password;
+const registerAndLogin = async (userProps = {}) => {
+  const password = userProps.password ?? userTest.password;
 
-//   const agent = request.agent(app);
+  const agent = request.agent(app);
 
-//   const user = await UserService.create({ ...userTest, ...userProps });
+  const user = await UserService.create({ ...userTest, ...userProps });
 
+  const { email } = user;
+  await  agent.post('/api/v1/users/sessions').send({ email, password });
 
-// };
+  return [agent, user];
+
+};
 
 
 describe('backend-express-template routes', () => {
@@ -47,7 +51,7 @@ describe('backend-express-template routes', () => {
   afterAll(() => {
     pool.end();
   });
-  it('#GET /api/v1/secrets should return a 401 when signed out and listing all users', async () => {
+  it('#GET /api/v1/secrets should return a 401 when signed out and listing all secrets', async () => {
     const res = await request(app).get('/api/v1/secrets');
 
     expect(res.body).toEqual({
@@ -55,13 +59,17 @@ describe('backend-express-template routes', () => {
       status: 401
     });
   });
+  it('#GET /api/v1/secrets should return a list of secrets', async () => {
+    const [agent] = await registerAndLogin();
+    const res = await agent.get('/api/v1/secrets');
 
-
-
-
+    expect(res.status).toBe(200);
+  });
   it('#DELETE /api/v1/users/sessions deletes a users session', async () => {
     const res = await request(app).delete('/api/v1/users/sessions');
     expect(res.status).toBe(200);
+
+    expect(res.body).toEqual({ success: true, message: 'Signed out successfully' });
     const newRes = await request(app).get('/api/v1/users/sessions');
     expect(newRes.status).toBe(404);
   });
