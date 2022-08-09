@@ -51,6 +51,17 @@ describe('backend-express-template routes', () => {
   afterAll(() => {
     pool.end();
   });
+  it('#POST /api/v1/secrets should post a new row', async () => {
+    const [agent] = await registerAndLogin();
+    const res = await agent.post('/api/v1/secrets').send({
+      title: 'I am testing again',
+      description: 'woohoo testing!'
+    });
+    expect(res.status).toBe(200);
+
+  });
+  
+  
   it('#GET /api/v1/secrets should return a 401 when signed out and listing all secrets', async () => {
     const res = await request(app).get('/api/v1/secrets');
 
