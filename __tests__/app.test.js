@@ -12,14 +12,14 @@ const userTest = {
 };
 
 const registerAndLogin = async (userProps = {}) => {
-  const password = userProps.password ?? userTest.password;
+  // const password = userProps.password ?? userTest.password;
 
   const agent = request.agent(app);
 
   const user = await UserService.create({ ...userTest, ...userProps });
 
-  const { email } = user;
-  await  agent.post('/api/v1/users/sessions').send({ email, password });
+  // const { email } = user;
+  // await  agent.post('/api/v1/users/sessions').send({ email, password });
 
   return [agent, user];
 
@@ -35,10 +35,11 @@ describe('backend-express-template routes', () => {
     const { firstName, lastName, email } = userTest;
     expect(res.status).toBe(200);
     expect(res.body).toEqual({
-      id: expect.any(String),
-      firstName, 
-      lastName,
-      email
+      message: 'Signed in successfully',
+      user: { id: expect.any(String),
+        firstName, 
+        lastName,
+        email }
     });
   });
   it('#POST /api/v1/users/sessions signs in an existing user', async () => {
@@ -57,6 +58,7 @@ describe('backend-express-template routes', () => {
       title: 'I am testing again',
       description: 'woohoo testing!'
     });
+    console.log('res.body', res.body);
     expect(res.status).toBe(200);
 
   });
@@ -76,12 +78,15 @@ describe('backend-express-template routes', () => {
 
     expect(res.status).toBe(200);
   });
+  
   it('#DELETE /api/v1/users/sessions deletes a users session', async () => {
-    const res = await request(app).delete('/api/v1/users/sessions');
-    expect(res.status).toBe(200);
+    const [agent] = await registerAndLogin();
+    const res = await agent.delete('/api/v1/users/sessions');
+    expect(res.status).toBe(200); 
 
     expect(res.body).toEqual({ success: true, message: 'Signed out successfully' });
-    const newRes = await request(app).get('/api/v1/users/sessions');
+    const newRes = await agent.get('/api/v1/users/sessions');
     expect(newRes.status).toBe(404);
   });
 });
+

@@ -2,7 +2,7 @@
 -- The SQL in this file will be executed when you run `npm run setup-db`
 
 DROP TABLE IF EXISTS secrets;
-DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS users1;
 
 CREATE TABLE secrets (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -11,7 +11,7 @@ CREATE TABLE secrets (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE users (
+CREATE TABLE users1 (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     email VARCHAR NOT NULL,
     password_hash VARCHAR NOT NULL,
